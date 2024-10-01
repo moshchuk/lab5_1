@@ -1,0 +1,67 @@
+#include <iostream>
+#include <cmath>
+
+using namespace std;
+
+double h(const double x, const double y);
+double calculate_c(double s, double t);
+
+// Simple test for the h(x, y) function
+void test_h_function() {
+    cout << "Testing h(x, y):" << endl;
+
+    // Test case 1: h(1, 1)
+    double result = h(1, 1);
+    cout << "h(1, 1) = " << result << " (Expected ~0.66667)" << endl;
+
+    // Test case 2: h(2, 3)
+    result = h(2, 3);
+    cout << "h(2, 3) = " << result << " (Expected ~0.31707)" << endl;
+
+    // Test case 3: h(0, 0)
+    result = h(0, 0);
+    cout << "h(0, 0) = " << result << " (Expected ~0.0)" << endl;
+
+    // Test case 4: h(5, 4)
+    result = h(5, 4);
+    cout << "h(5, 4) = " << result << " (Expected ~0.09624)" << endl;
+
+    cout << endl;
+}
+
+// Simple test for the overall calculation of 'c'
+void test_calculate_c() {
+    cout << "Testing calculation of c:" << endl;
+
+    // Test case 1: s = 1, t = 2
+    double result = calculate_c(1, 2);
+    cout << "calculate_c(1, 2) = " << result << " (Expected ~1.2158)" << endl;
+
+    // Test case 2: s = 3, t = 4
+    result = calculate_c(3, 4);
+    cout << "calculate_c(3, 4) = " << result << " (Expected ~1.4084)" << endl;
+
+    // Test case 3: s = 0, t = 0
+    result = calculate_c(0, 0);
+    cout << "calculate_c(0, 0) = " << result << " (Expected ~0.5)" << endl;
+
+    cout << endl;
+}
+
+// Function to calculate 'c' based on the original main logic
+double calculate_c(double s, double t) {
+    return h(1, s + t) + h(s, s - t) - h(t, sqrt(s * s + t * t));
+}
+
+int main() {
+    // Run the tests
+    test_h_function();
+    test_calculate_c();
+
+    return 0;
+}
+
+// Original h function
+double h(const double x, const double y) {
+    return (x * x + y * y) / (1 + x * x + x * x * y * y);
+}
