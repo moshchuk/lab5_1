@@ -1,0 +1,73 @@
+// Лабораторна 6.1.рек
+#include <iostream>
+#include <iomanip>
+#include <ctime>
+
+using namespace std;
+
+void Create(int* a, const int n, const int Low, const int High, int i) {
+    a[i] = Low + rand() % (High - Low + 1);
+    if (i < n - 1)
+        Create(a, n, Low, High, i + 1);
+}
+
+void Print(int* a, const int n, int i) {
+    cout << setw(4) << a[i];
+    if (i < n - 1)
+        Print(a, n, i + 1);
+    else
+        cout << endl;
+}
+
+// Рекурсивна функція для підрахунку кількості додатних непарних елементів
+int Count(int* a, const int n, int i, int count) {
+    if (a[i] > 0 && a[i] % 2 != 0)  // Критерій: додатнє і непарне число
+        count++;
+    if (i < n - 1)
+        return Count(a, n, i + 1, count);
+    else
+        return count;
+}
+
+// Рекурсивна функція для заміни додатних непарних елементів на 0
+void Zero(int* a, const int n, int i) {
+    if (a[i] > 0 && a[i] % 2 != 0)  // Критерій: додатнє і непарне число
+        a[i] = 0;
+    if (i < n - 1)
+        Zero(a, n, i + 1);
+}
+
+// Рекурсивна функція для обчислення суми додатних непарних елементів
+int Sum(int* a, const int n, int i, int S) {
+    if (a[i] > 0 && a[i] % 2 != 0)  // Критерій: додатнє і непарне число
+        S += a[i];
+    if (i < n - 1)
+        return Sum(a, n, i + 1, S);
+    else
+        return S;
+}
+
+int main() {
+    srand((unsigned)time(NULL));
+
+    const int n = 23;  // Встановлюємо розмір масиву 23, як зазначено у варіанті
+    int a[n];
+
+    int Low = -25;  // Нижня межа діапазону
+    int High = 80;  // Верхня межа діапазону
+
+    Create(a, n, Low, High, 0);  // Генерація масиву
+    cout << "Initial array: ";
+    Print(a, n, 0);  // Виведення початкового масиву
+
+    // Виведення суми та кількості додатних непарних елементів
+    cout << "Sum = " << Sum(a, n, 0, 0) << endl;
+    cout << "Count = " << Count(a, n, 0, 0) << endl;
+
+    // Заміна додатних непарних елементів на 0
+    Zero(a, n, 0);
+    cout << "Modified array: ";
+    Print(a, n, 0);  // Виведення модифікованого масиву
+
+    return 0;
+}
