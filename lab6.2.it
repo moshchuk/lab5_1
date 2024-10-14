@@ -1,0 +1,50 @@
+// Лабораторна6.2.іт
+#include <iostream>
+#include <iomanip>
+
+using namespace std;
+
+void Create(int* a, const int n) {
+    setlocale(LC_CTYPE, "ukr");
+    for (int i = 0; i < n; i++) {
+        cout << "Введiть елемент " << i + 1 << ": ";
+        cin >> a[i];
+    }
+}
+
+void Print(const int* a, const int n) {
+    for (int i = 0; i < n; i++) {
+        cout << setw(4) << a[i];
+    }
+    cout << endl;
+}
+
+int SumOfOddIndices(const int* a, const int n) {
+    int sum = 0;
+    for (int i = 0; i < n; i++) {
+        if (a[i] % 2 != 0) {  // Перевіряємо, чи елемент непарний
+            sum += i;         // Додаємо індекс непарного елемента
+        }
+    }
+    return sum;
+}
+
+int main() {
+    setlocale(LC_CTYPE, "ukr");
+    int n;  // Розмір масиву
+    cout << "Введiть кiлькiсть елементiв масиву: ";
+    cin >> n;
+
+    int* a = new int[n];  // Одновимірний масив динамічної розмірності
+
+    Create(a, n);  // Створення масиву (введення користувачем)
+    cout << "Масив: ";
+    Print(a, n);  // Виведення початкового масиву
+
+    // Обчислення суми індексів непарних елементів
+    int sum = SumOfOddIndices(a, n);
+    cout << "Сума iндексiв непарних елементiв: " << sum << endl;
+
+    delete[] a;  // Очищення пам'яті
+    return 0;
+}
