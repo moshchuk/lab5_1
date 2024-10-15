@@ -1,0 +1,57 @@
+#include <iostream>
+#include <iomanip>
+
+using namespace std;
+
+// Функція для введення масиву
+void Input(int* a, const int n, int i = 0)
+{
+    cout << "a[" << i << "] = ";
+    cin >> a[i];
+    if (i < n - 1)
+        Input(a, n, i + 1);  // Рекурсивний виклик для введення наступного елемента
+}
+
+// Функція для виведення масиву
+void Print(int* a, const int n, int i = 0)
+{
+    cout << setw(4) << a[i];
+    if (i < n - 1)
+        Print(a, n, i + 1);  // Рекурсивний виклик для виведення наступного елемента
+    else
+        cout << endl;
+}
+
+// Функція для обчислення суми непарних елементів
+int SumOdd(int* a, const int n, int i = 0, int S = 0)
+{
+    if (a[i] % 2 != 0)  // Якщо елемент непарний
+        S += a[i];       // Додаємо його до суми
+    if (i < n - 1)
+        return SumOdd(a, n, i + 1, S);  // Рекурсивний виклик для наступного елемента
+    else
+        return S;  // Повертаємо результат
+}
+
+int main()
+{
+    setlocale(LC_CTYPE, "ukr");
+    int n;
+    cout << "n = ";
+    cin >> n;
+    int* a = new int[n];
+
+    // Введення масиву
+    Input(a, n);
+
+    // Виведення початкового масиву
+    cout << "Початковий масив: ";
+    Print(a, n);
+
+    // Обчислення суми непарних елементів
+    int sumOdd = SumOdd(a, n);
+    cout << "S " << sumOdd << endl;
+
+    delete[] a;  // Звільняємо пам'ять
+    return 0;
+}
