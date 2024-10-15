@@ -1,0 +1,58 @@
+#include <iostream>
+#include <iomanip>
+
+using namespace std;
+
+// Рекурсивна функція для введення масиву
+template <typename T>
+void Input(T* a, const int n, int i = 0) {
+    if (i == n) return;  // Базовий випадок: масив введено
+    cout << "a[" << i << "] = ";
+    cin >> a[i];
+    Input(a, n, i + 1);  // Рекурсивний виклик для введення наступного елемента
+}
+
+// Рекурсивна функція для виведення масиву
+template <typename T>
+void Print(T* a, const int n, int i = 0) {
+    if (i == n) {
+        cout << endl;
+        return;  // Базовий випадок: масив виведено
+    }
+    cout << setw(4) << a[i];
+    Print(a, n, i + 1);  // Рекурсивний виклик для виведення наступного елемента
+}
+
+// Рекурсивна функція для обчислення суми непарних елементів
+template <typename T>
+T SumOdd(T* a, const int n, int i = 0, T S = 0) {
+    if (i == n) return S;  // Базовий випадок: обчислення завершено
+    if (a[i] % 2 != 0)     // Якщо елемент непарний
+        S += a[i];         // Додаємо його до суми
+    return SumOdd(a, n, i + 1, S);  // Рекурсивний виклик для наступного елемента
+}
+
+int main() {
+    setlocale(LC_CTYPE, "ukr");
+    int n;
+    cout << "n = ";
+    cin >> n;
+
+    // Динамічний масив
+    int* a = new int[n];
+
+    // Введення масиву
+    Input<int>(a, n);
+
+    // Виведення початкового масиву
+    cout << "Початковий масив: ";
+    Print<int>(a, n);
+
+    // Обчислення суми непарних елементів
+    int sumOdd = SumOdd<int>(a, n);
+    cout << "S " << sumOdd << endl;
+
+    // Звільняємо пам'ять
+    delete[] a;
+    return 0;
+}
