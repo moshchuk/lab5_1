@@ -1,0 +1,85 @@
+#include <iostream>
+#include <iomanip>
+
+using namespace std;
+
+// Рекурсивна функція для введення масиву
+void Input(int* a, int n, int index = 0) {
+    if (index == n) return;  // Базовий випадок
+    cout << "a[" << index << "] = ";
+    cin >> a[index];
+    Input(a, n, index + 1);  // Рекурсивний виклик
+}
+
+// Рекурсивна функція для виведення масиву
+void Print(int* a, int n, int index = 0) {
+    if (index == n) {
+        cout << endl;
+        return;  // Базовий випадок
+    }
+    cout << setw(5) << a[index];  // Виводимо елемент масиву
+    Print(a, n, index + 1);  // Рекурсивний виклик
+}
+
+// Рекурсивна функція для обчислення суми індексів непарних елементів
+int SumOddIndexes(int* a, int n, int index = 0, int sum = 0) {
+    if (index == n) return sum;  // Базовий випадок
+    if (a[index] % 2 != 0)  // Якщо елемент непарний
+        sum += index;
+    return SumOddIndexes(a, n, index + 1, sum);  // Рекурсивний виклик
+}
+
+// Рекурсивна функція для сортування масиву за допомогою обміну максимуму та мінімуму
+void Sort(int* a, int n, int i = 0) {
+    if (i == n) return;  // Базовий випадок
+    int max = a[i];
+    int min = a[i];
+    int imax = i, imin = i;
+
+    // Рекурсивний пошук максимуму і мінімуму у поточному сегменті
+    for (int j = i + 1; j < n; j++) {
+        if (a[j] > max) {
+            max = a[j];
+            imax = j;
+        }
+        if (a[j] < min) {
+            min = a[j];
+            imin = j;
+        }
+    }
+
+    // Міняємо місцями мінімум та максимум
+    swap(a[imax], a[imin]);
+
+    Sort(a, n, i + 1);  // Рекурсивний виклик для наступного елемента
+}
+
+int main() {
+    setlocale(LC_CTYPE, "ukr");
+    int n;
+    cout << "n = ";
+    cin >> n;
+
+    int* a = new int[n];
+
+    // Введення масиву
+    Input(a, n);
+
+    // Виведення початкового масиву
+    cout << "Початковий масив: ";
+    Print(a, n);
+
+    // Обчислення суми індексів непарних елементів
+    int sum = SumOddIndexes(a, n);
+    cout << "Сума iндексiв непарних елементiв: " << sum << endl;
+
+    // Сортування масиву
+    Sort(a, n);
+
+    // Виведення відсортованого масиву
+    cout << "Вiдсортований масив: ";
+    Print(a, n);
+
+    delete[] a;  // Звільнення пам'яті
+    return 0;
+}
