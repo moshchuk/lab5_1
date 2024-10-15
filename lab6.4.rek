@@ -1,0 +1,94 @@
+#include <iostream>
+#include <iomanip>
+#include <cstdlib>
+
+using namespace std;
+
+// Функція для вводу елементів масиву
+void Input(double* a, const int n, int index = 0) {
+    if (index < n) {
+        cout << "a[" << index << "] = ";
+        cin >> a[index];
+        Input(a, n, index + 1); // рекурсивний виклик
+    }
+}
+
+// Функція для виводу елементів масиву
+void Print(const double* a, const int n, int index = 0) {
+    if (index < n) {
+        cout << setw(10) << a[index];
+        Print(a, n, index + 1); // рекурсивний виклик
+    } else {
+        cout << endl;
+    }
+}
+
+// Функція для обчислення максимального за модулем елемента
+double MaxAbs(const double* a, const int n, int index = 0, double maxAbs = 0) {
+    if (index < n) {
+        double currentAbs = abs(a[index]);
+        if (currentAbs > maxAbs) {
+            maxAbs = currentAbs;
+        }
+        return MaxAbs(a, n, index + 1, maxAbs); // рекурсивний виклик
+    }
+    return maxAbs;
+}
+
+// Функція для обчислення суми елементів між першим і другим додатніми елементами
+double SumBetweenFirstTwoPositives(const double* a, const int n, int index = 0, int count = 0) {
+    if (index < n) {
+        if (a[index] > 0) {
+            count++;
+            if (count == 2) {
+                return 0; // Знайдено другий додатній, повертай 0
+            }
+        }
+        if (count == 1) {
+            return a[index] + SumBetweenFirstTwoPositives(a, n, index + 1, count); // Додаємо
+        }
+        return SumBetweenFirstTwoPositives(a, n, index + 1, count); // Продолжаємо шукати
+    }
+    return 0; // Не знайшли два додатні
+}
+
+// Функція для переміщення нулів в кінець масиву
+void MoveZerosToEnd(double* a, const int n, int index = 0, int nonZeroIndex = 0) {
+    if (index < n) {
+        if (a[index] != 0) {
+            a[nonZeroIndex++] = a[index]; // Переміщуємо ненульовий елемент
+        }
+        MoveZerosToEnd(a, n, index + 1, nonZeroIndex); // Рекурсивний виклик
+    } else {
+        // Заповнюємо залишок масиву нулями
+        for (int i = nonZeroIndex; i < n; i++) {
+            a[i] = 0;
+        }
+    }
+}
+
+int main() {
+    setlocale(LC_CTYPE, "ukr");
+    int n;
+    cout << "(n): ";
+    cin >> n;
+
+    double* a = new double[n];
+
+    Input(a, n);
+    cout << "Початковий масив: ";
+    Print(a, n);
+
+    double maxAbsValue = MaxAbs(a, n);
+    cout << "Максимальний за модулем елемент: " << maxAbsValue << endl;
+
+    double sumBetween = SumBetweenFirstTwoPositives(a, n);
+    cout << "S " << sumBetween << endl;
+
+    MoveZerosToEnd(a, n);
+    cout << "Масив пiсля перемiщення нулiв: ";
+    Print(a, n);
+
+    delete[] a; // Звільнення пам'яті
+    return 0;
+}
