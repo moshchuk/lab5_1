@@ -1,0 +1,112 @@
+#include <iostream>
+#include <iomanip>
+#include <cstdlib>
+#include <ctime>
+
+using namespace std;
+
+// Функція для створення масиву
+void Create(int* a, const int n) {
+    for (int i = 0; i < n; ++i) {
+        a[i] = -5 + rand() % 10; // Генерація випадкових чисел від -5 до 4
+    }
+}
+
+// Функція для виведення масиву
+void Print(int* a, const int n) {
+    cout << "[";
+    for (int i = 0; i < n; ++i) {
+        cout << a[i];
+        if (i != n - 1) cout << ", ";
+    }
+    cout << "]" << endl;
+}
+
+// Функція для обчислення максимального за модулем елемента
+int MaxAbs(int* a, const int n) {
+    int maxAbs = abs(a[0]); // Початкове максимальне значення за модулем
+    for (int i = 1; i < n; ++i) {
+        if (abs(a[i]) > maxAbs) {
+            maxAbs = abs(a[i]);
+        }
+    }
+    return maxAbs;
+}
+
+// Функція для обчислення суми між першим і другим додатними елементами
+int SumBetweenFirstTwoPositives(int* a, const int n) {
+    int firstPosIndex = -1; // Індекс першого додатнього елемента
+    int secondPosIndex = -1; // Індекс другого додатнього елемента
+    int sum = 0;
+
+    for (int i = 0; i < n; ++i) {
+        if (a[i] > 0) {
+            if (firstPosIndex == -1) {
+                firstPosIndex = i; // Знайшли перший додатній елемент
+            }
+            else if (secondPosIndex == -1) {
+                secondPosIndex = i; // Знайшли другий додатній елемент
+                break; // Виходимо з циклу
+            }
+        }
+    }
+
+    if (firstPosIndex != -1 && secondPosIndex != -1) {
+        // Обчислюємо суму між першим і другим додатніми елементами
+        for (int i = firstPosIndex + 1; i < secondPosIndex; ++i) {
+            sum += a[i];
+        }
+    }
+    return sum;
+}
+
+// Функція для переміщення нулів в кінець масиву
+void MoveZerosToEnd(int* a, const int n) {
+    int count = 0; // Лічильник ненульових елементів
+
+    // Переміщуємо ненульові елементи на початок масиву
+    for (int i = 0; i < n; ++i) {
+        if (a[i] != 0) {
+            a[count++] = a[i];
+        }
+    }
+
+    // Заповнюємо залишок масиву нулями
+    while (count < n) {
+        a[count++] = 0;
+    }
+}
+
+int main() {
+    setlocale (LC_CTYPE, "ukr");
+    srand(static_cast<unsigned int>(time(0))); // Ініціалізація генератора випадкових чисел
+
+    int n;
+    cout << "Введiть кiлькiсть елементiв масиву (n): ";
+    cin >> n;
+
+    // Динамічний масив
+    int* a = new int[n];
+
+    // Створення масиву
+    Create(a, n);
+    cout << "Початковий масив: ";
+    Print(a, n);
+
+    // Обчислення максимального за модулем елемента
+    int maxAbsValue = MaxAbs(a, n);
+    cout << "Максимальний за модулем елемент: " << maxAbsValue << endl;
+
+    // Обчислення суми між першим і другим додатніми елементами
+    int sumBetween = SumBetweenFirstTwoPositives(a, n);
+    cout << "Сума мiж першим i другим додатнiми елементами: " << sumBetween << endl;
+
+    // Переміщення нулів в кінець масиву
+    MoveZerosToEnd(a, n);
+    cout << "Масив пiсля перемiщення нулiв: ";
+    Print(a, n);
+
+    // Звільнення пам'яті
+    delete[] a;
+    return 0;
+}
