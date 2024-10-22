@@ -1,0 +1,97 @@
+#include <iostream>
+#include <iomanip>
+#include <ctime>
+#include <limits.h>
+
+using namespace std;
+
+// Функція для створення рядка з випадковими цілими числами
+void CreateRow(int** a, const int rowNo, const int n, const int Low, const int High, int colNo) {
+    a[rowNo][colNo] = Low + rand() % (High - Low + 1);
+    if (colNo < n - 1)
+        CreateRow(a, rowNo, n, Low, High, colNo + 1);
+}
+
+// Функція для створення всієї матриці
+void CreateRows(int** a, const int k, const int n, const int Low, const int High, int rowNo) {
+    CreateRow(a, rowNo, n, Low, High, 0);
+    if (rowNo < k - 1)
+        CreateRows(a, k, n, Low, High, rowNo + 1);
+}
+
+// Функція для виведення рядка матриці
+void PrintRow(int** a, const int rowNo, const int n, int colNo) {
+    cout << setw(4) << a[rowNo][colNo];
+    if (colNo < n - 1)
+        PrintRow(a, rowNo, n, colNo + 1);
+    else
+        cout << endl;
+}
+
+// Функція для виведення всієї матриці
+void PrintRows(int** a, const int k, const int n, int rowNo) {
+    PrintRow(a, rowNo, n, 0);
+    if (rowNo < k - 1)
+        PrintRows(a, k, n, rowNo + 1);
+}
+
+// Функція для знаходження найбільшого з мінімальних елементів по непарних рядках
+void FindMaxOfMinsInOddRows(int** a, const int k, const int n, int rowNo, int& maxOfMins, bool& found) {
+    if (rowNo < k) {
+        if (rowNo % 2 != 0) { // Перевірка на непарні рядки
+            int minInRow = INT_MAX;
+            for (int col = 0; col < n; col++) {
+                if (a[rowNo][col] < minInRow) {
+                    minInRow = a[rowNo][col];
+                }
+            }
+            if (minInRow > maxOfMins) {
+                maxOfMins = minInRow;
+                found = true;
+            }
+        }
+        FindMaxOfMinsInOddRows(a, k, n, rowNo + 1, maxOfMins, found); // Рекурсивний виклик для наступного рядка
+    }
+}
+
+int main() {
+    srand((unsigned)time(NULL));
+    int k, n;
+    cout << "(k): ";
+    cin >> k;
+    cout << "(n): ";
+    cin >> n;
+
+    // Динамічно виділяємо пам'ять для матриці
+    int** a = new int* [k];
+    for (int i = 0; i < k; i++)
+        a[i] = new int[n];
+
+    // Визначаємо діапазон випадкових значень
+    int Low = -9, High = 9;
+
+    // Створюємо та виводимо матрицю
+    CreateRows(a, k, n, Low, High, 0);
+    cout << "" << endl;
+    PrintRows(a, k, n, 0);
+
+    // Знаходимо найбільший з мінімальних елементів по непарних рядках
+    int maxOfMins = INT_MIN;
+    bool found = false;
+    FindMaxOfMinsInOddRows(a, k, n, 0, maxOfMins, found);
+
+    // Виводимо результат
+    if (found) {
+        cout << "MaxofMin " << maxOfMins << endl;
+    }
+    else {
+        cout << "None found" << endl;
+    }
+
+    // Звільняємо пам'ять
+    for (int i = 0; i < k; i++)
+        delete[] a[i];
+    delete[] a;
+
+    return 0;
+}
