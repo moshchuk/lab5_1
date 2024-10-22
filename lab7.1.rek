@@ -1,0 +1,128 @@
+#include <iostream>
+#include <iomanip>
+#include <cstdlib>
+#include <ctime>
+
+using namespace std;
+
+// Функції
+void CreateMatrix(int** matrix, const int rows, const int cols, const int low, const int high);
+void PrintMatrix(int** matrix, const int rows, const int cols);
+void CalculateSumAndCount(int** matrix, const int rows, const int cols, int& sum, int& count, int row = 0, int col = 0);
+void SortMatrix(int** matrix, const int rows, const int cols);
+void ChangeColumns(int** matrix, int col1, int col2, int rows);
+void CleanupMatrix(int** matrix, const int rows);
+
+int main() {
+    setlocale(LC_CTYPE, "ukr");
+    srand(static_cast<unsigned>(time(0)));
+
+    const int rows = 7;    // Кількість рядків
+    const int cols = 5;    // Кількість стовпців
+    const int low = -6;    // Мінімальне значення
+    const int high = 31;   // Максимальне значення
+
+    // Створення динамічної матриці
+    int** matrix = new int* [rows];
+    for (int i = 0; i < rows; i++) {
+        matrix[i] = new int[cols];
+    }
+
+    // Завдання 1: Створення та виведення матриці
+    CreateMatrix(matrix, rows, cols, low, high);
+    cout << "Початкова матриця:" << endl;
+    PrintMatrix(matrix, rows, cols);
+
+    // Обчислення суми та кількості елементів за критерієм
+    int sum = 0;
+    int count = 0;
+    CalculateSumAndCount(matrix, rows, cols, sum, count);
+
+    cout << "k " << count << endl;
+    cout << "S " << sum << endl;
+
+    // Виведення модифікованої матриці
+    cout << "Модифiкована матриця " << endl;
+    PrintMatrix(matrix, rows, cols);
+
+    // Завдання 2: Сортування матриці
+    SortMatrix(matrix, rows, cols);
+    cout << "Сортована матриця:" << endl;
+    PrintMatrix(matrix, rows, cols);
+
+    // Очищення пам'яті
+    CleanupMatrix(matrix, rows);
+
+    return 0;
+}
+
+// Функція для створення матриці з випадковими значеннями
+void CreateMatrix(int** matrix, const int rows, const int cols, const int low, const int high) {
+    for (int i = 0; i < rows; i++) {
+        for (int j = 0; j < cols; j++) {
+            matrix[i][j] = low + rand() % (high - low + 1);
+        }
+    }
+}
+
+// Функція для виведення матриці на екран
+void PrintMatrix(int** matrix, const int rows, const int cols) {
+    for (int i = 0; i < rows; i++) {
+        for (int j = 0; j < cols; j++) {
+            cout << setw(4) << matrix[i][j];
+        }
+        cout << endl;
+    }
+    cout << endl;
+}
+
+// Рекурсивна функція для обчислення суми та кількості елементів
+void CalculateSumAndCount(int** matrix, const int rows, const int cols, int& sum, int& count, int row, int col) {
+    if (row >= rows) return; // Якщо досягли кінця рядків
+
+    // Перевірка, чи досягли кінця стовпців
+    if (col >= cols) {
+        CalculateSumAndCount(matrix, rows, cols, sum, count, row + 1, 0); // Переходимо на наступний рядок
+        return;
+    }
+
+    // Критерій: додатні числа, що не мають індексів кратних 3
+    if (matrix[row][col] > 0 && (row % 3 != 0) && (col % 3 != 0)) {
+        sum += matrix[row][col];
+        count++;
+        matrix[row][col] = 0; // Заміна на 0
+    }
+
+    // Рекурсивний виклик для наступного стовпця
+    CalculateSumAndCount(matrix, rows, cols, sum, count, row, col + 1);
+}
+
+// Функція для сортування матриці за вказаними критеріями
+void SortMatrix(int** matrix, const int rows, const int cols) {
+    for (int i0 = 0; i0 < cols - 1; i0++) {
+        for (int i1 = 0; i1 < cols - i0 - 1; i1++) {
+            if ((matrix[0][i1] > matrix[0][i1 + 1]) ||
+                (matrix[0][i1] == matrix[0][i1 + 1] && matrix[1][i1] > matrix[1][i1 + 1]) ||
+                (matrix[0][i1] == matrix[0][i1 + 1] && matrix[1][i1] == matrix[1][i1 + 1] && matrix[2][i1] < matrix[2][i1 + 1])) {
+                ChangeColumns(matrix, i1, i1 + 1, rows);
+            }
+        }
+    }
+}
+
+// Функція для зміни місцями стовпців
+void ChangeColumns(int** matrix, int col1, int col2, int rows) {
+    for (int i = 0; i < rows; i++) {
+        int temp = matrix[i][col1];
+        matrix[i][col1] = matrix[i][col2];
+        matrix[i][col2] = temp;
+    }
+}
+
+// Функція для очищення пам'яті
+void CleanupMatrix(int** matrix, const int rows) {
+    for (int i = 0; i < rows; i++) {
+        delete[] matrix[i];
+    }
+    delete[] matrix;
+}
