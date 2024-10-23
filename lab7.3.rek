@@ -1,0 +1,91 @@
+#include <iostream>
+#include <iomanip>
+#include <cmath> // для abs()
+using namespace std;
+
+// Рекурсивна функція для згладжування елемента матриці
+int SmoothElement(int** original, int n, int i, int j, int k = -1, int l = -1, int sum = 0, int count = 0) {
+    if (k > i + 1) return sum / count; // якщо завершили всі сусіди
+    if (l > j + 1) return SmoothElement(original, n, i, j, k + 1, j - 1, sum, count); // переходимо до наступного ряду
+    if (k >= 0 && k < n && l >= 0 && l < n) { // перевіряємо, чи елемент в межах матриці
+        sum += original[k][l];
+        count++;
+    }
+    return SmoothElement(original, n, i, j, k, l + 1, sum, count); // переходимо до наступного елемента
+}
+
+// Рекурсивна функція для згладжування всієї матриці
+void Smooth(int** original, int** smoothed, int n, int i = 0, int j = 0) {
+    if (i >= n) return; // завершення рекурсії
+    smoothed[i][j] = SmoothElement(original, n, i, j); // згладжуємо елемент
+    if (j + 1 < n) Smooth(original, smoothed, n, i, j + 1); // переходимо до наступного стовпця
+    else Smooth(original, smoothed, n, i + 1, 0); // переходимо до наступного рядка
+}
+
+// Рекурсивна функція для обчислення суми елементів нижче головної діагоналі
+int SumBelowMainDiagonal(int** matrix, int n, int i = 1, int j = 0, int sum = 0) {
+    if (i >= n) return sum; // завершення рекурсії
+    if (j < i) sum += abs(matrix[i][j]); // додаємо елемент до суми
+    if (j + 1 < i) return SumBelowMainDiagonal(matrix, n, i, j + 1, sum); // переходимо до наступного елемента в рядку
+    return SumBelowMainDiagonal(matrix, n, i + 1, 0, sum); // переходимо до наступного рядка
+}
+
+// Допоміжна функція для введення матриці
+void Input(int** matrix, int n) {
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++) {
+            cout << "matrix[" << i << "][" << j << "] = ";
+            cin >> matrix[i][j];
+        }
+    }
+}
+
+// Допоміжна функція для виведення матриці
+void Print(int** matrix, int n) {
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++) {
+            cout << setw(4) << matrix[i][j];
+        }
+        cout << endl;
+    }
+}
+
+int main() {
+    setlocale(LC_CTYPE, "ukr");
+    int n;
+    cout << "(n):";
+    cin >> n;
+
+    // Динамічне виділення пам'яті для початкової та згладженої матриць
+    int** original = new int* [n];
+    int** smoothed = new int* [n];
+    for (int i = 0; i < n; i++) {
+        original[i] = new int[n];
+        smoothed[i] = new int[n];
+    }
+
+    // Введення початкової матриці
+    cout << "" << endl;
+    Input(original, n);
+
+    // Виконання згладжування
+    Smooth(original, smoothed, n);
+
+    // Виведення згладженої матриці
+    cout << "Згладжена матриця:" << endl;
+    Print(smoothed, n);
+
+    // Обчислення суми елементів нижче головної діагоналі
+    int sum = SumBelowMainDiagonal(smoothed, n);
+    cout << "S" << sum << endl;
+
+    // Звільнення динамічно виділеної пам'яті
+    for (int i = 0; i < n; i++) {
+        delete[] original[i];
+        delete[] smoothed[i];
+    }
+    delete[] original;
+    delete[] smoothed;
+
+    return 0;
+}
