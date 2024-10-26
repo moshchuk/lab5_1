@@ -1,0 +1,68 @@
+//Дано літерний рядок, який містить послідовність символів s0, …, sn, … . 
+//1. Вияснити, чи є серед цих символів четвірка сусідніх однакових символів.
+//2. Замінити кожну четвірку сусідніх однакових символів парою зірочок “ * *”.
+
+#define _CRT_SECURE_NO_WARNINGS
+#include <iostream>
+
+using namespace std;
+
+int Count(char* str, int i)
+{
+	if (strlen(str) < 4)
+		return 0;
+
+	if (str[i + 3] != '\0') // Перевіряємо, чи не досягли кінця рядка
+    {
+		if (str[i] == str[i + 1] && str[i] == str[i + 2] && str[i] == str[i + 3])
+			return 1 + Count(str, i + 4);
+		else
+			return Count(str, i + 1); // Інакше просто йдемо далі по рядку
+	}
+	else
+		return 0;
+}
+char* Change(char* dest, const char* str, char* t, int i) 
+{
+    if (str[i + 3] != '\0') // Перевіряємо, чи не закінчився рядок
+    {  
+        if (str[i] == str[i + 1] && str[i] == str[i + 2] && str[i] == str[i + 3]) // Якщо знайшли четвірку, додаємо пару зірочок
+        {
+            strcat(t, "**");  
+            return Change(dest, str, t + 2, i + 4);  // Пропускаємо 4 символи
+        }
+        else 
+        {
+            *t++ = str[i++];  // Якщо четвірки немає, просто копіюємо символ
+            *t = '\0';  // Завершуємо тимчасовий рядок
+            return Change(dest, str, t, i);  
+        }
+    }
+    else 
+    {
+        while (str[i] != '\0') {
+            *t++ = str[i++];
+        }
+        *t = '\0';  
+        return dest;
+    }
+}
+
+int main() {
+    char str[101]; 
+
+    cout << "Enter string:" << endl;
+    cin.getline(str, 100); 
+
+    cout << "String contained " << Count(str, 0) << " groups of four identical characters." << endl;
+
+    char* dest1 = new char[151];  // Рядок для збереження результату заміни
+    dest1[0] = '\0';
+
+    char* dest2 = Change(dest1, str, dest1, 0);  // Виклик функції для заміни
+
+    cout << "Modified string (param) : " << dest1 << endl;
+    cout << "Modified string (result): " << dest2 << endl;
+
+    return 0;
+}
