@@ -1,0 +1,49 @@
+//Дано літерний рядок, який містить послідовність символів s0, …, sn, … . 
+//1. Вияснити, чи є серед цих символів четвірка сусідніх однакових символів.
+//2. Замінити кожну четвірку сусідніх однакових символів парою зірочок “ * *”.
+
+#include <iostream>
+#include <string>
+
+using namespace std;
+
+int Count(const string& s)
+{
+    int count = 0;
+    for (size_t i = 0; i < s.length() - 3; i++) {
+        // Перевіряємо, чи є чотири сусідні однакові символи
+        if (s[i] == s[i + 1] && s[i] == s[i + 2] && s[i] == s[i + 3]) {
+            count++;
+            i += 3; // Перескакуємо через ці чотири символи
+        }
+    }
+    return count;
+}
+
+string Change(string& s) 
+{
+    size_t pos = 0;
+    while ((pos = s.find("aaaa", pos)) != string::npos || // Для прикладу, якщо символ 'a'
+        (pos = s.find("bbbb", pos)) != string::npos || // символ 'b'
+        (pos = s.find("cccc", pos)) != string::npos || // символ 'c'
+        (pos = s.find("dddd", pos)) != string::npos) { // символ 'd'
+        s.replace(pos, 4, "**");
+        pos += 2; // Перескакуємо через нові символи
+    }
+    return s;
+}
+
+int main() 
+{
+    string str;
+    cout << "Enter string:" << endl;
+    getline(cin, str);
+
+    int groups = Count(str);
+    cout << "String contained " << groups << " groups of four identical characters." << endl;
+
+    string modifiedStr = Change(str);
+    cout << "Modified string: " << modifiedStr << endl;
+
+    return 0;
+}
