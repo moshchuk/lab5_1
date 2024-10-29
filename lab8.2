@@ -1,0 +1,40 @@
+#include <iostream>
+#include <string>
+#include <sstream>
+
+using namespace std;
+
+// Функція для перевірки, чи слово починається і закінчується на один і той же символ
+bool Matching(const string& word) {
+    if (word.length() < 2) {
+        return false; // якщо довжина слова менша 2, воно не може починатися і закінчуватися однаково
+    }
+    return word.front() == word.back();
+}
+
+// Функція для підрахунку слів із однаковими першим і останнім символом
+int Count(const string& str) {
+    int count = 0;
+    istringstream stream(str);
+    string word;
+
+    while (stream >> word) {
+        if (Matching(word)) {
+            count++;
+        }
+    }
+
+    return count;
+}
+
+int main() {
+    string str;
+    cout << "Enter string:" << endl;
+    getline(cin, str);
+
+    int result = Count(str);
+
+    cout << "Number of words with matching first and last characters: " << result << endl;
+
+    return 0;
+}
