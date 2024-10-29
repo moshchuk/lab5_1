@@ -2,57 +2,54 @@
 //1. Вияснити, чи є серед цих символів четвірка сусідніх однакових символів.
 //2. Замінити кожну четвірку сусідніх однакових символів парою зірочок “ * *”.
 
-#define _CRT_SECURE_NO_WARNINGS
 #include <iostream>
+#include <cstring>
+
 
 using namespace std;
 
 int Count(char* str, int i)
 {
-	if (strlen(str) < 4)
-		return 0;
+    if (strlen(str) < 4 || str[i + 3] == '\0')
+        return 0;
 
-	if (str[i + 3] != '\0') // Перевіряємо, чи не досягли кінця рядка
-    {
-		if (str[i] == str[i + 1] && str[i] == str[i + 2] && str[i] == str[i + 3])
-			return 1 + Count(str, i + 4);
-		else
-			return Count(str, i + 1); // Інакше просто йдемо далі по рядку
-	}
-	else
-		return 0;
+    if (str[i] == str[i + 1] && str[i] == str[i + 2] && str[i] == str[i + 3])
+        return 1 + Count(str, i + 4);
+
+    return Count(str, i + 1);
 }
-char* Change(char* dest, const char* str, char* t, int i) 
+
+char* Change(char* dest, const char* str, char* t, int i)
 {
     if (str[i + 3] != '\0') // Перевіряємо, чи не закінчився рядок
-    {  
+    {
         if (str[i] == str[i + 1] && str[i] == str[i + 2] && str[i] == str[i + 3]) // Якщо знайшли четвірку, додаємо пару зірочок
         {
-            strcat(t, "**");  
+            strcat_s(t, 151, "**");
             return Change(dest, str, t + 2, i + 4);  // Пропускаємо 4 символи
         }
-        else 
+        else
         {
             *t++ = str[i++];  // Якщо четвірки немає, просто копіюємо символ
             *t = '\0';  // Завершуємо тимчасовий рядок
-            return Change(dest, str, t, i);  
+            return Change(dest, str, t, i);
         }
     }
-    else 
+    else
     {
         while (str[i] != '\0') {
             *t++ = str[i++];
         }
-        *t = '\0';  
+        *t = '\0';
         return dest;
     }
 }
 
 int main() {
-    char str[101]; 
+    char str[101];
 
     cout << "Enter string:" << endl;
-    cin.getline(str, 100); 
+    cin.getline(str, 100);
 
     cout << "String contained " << Count(str, 0) << " groups of four identical characters." << endl;
 
