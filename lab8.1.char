@@ -1,59 +1,53 @@
 //Дано літерний рядок, який містить послідовність символів s0, …, sn, … . 
 //1. Вияснити, чи є серед цих символів четвірка сусідніх однакових символів.
 //2. Замінити кожну четвірку сусідніх однакових символів парою зірочок “ * *”.
-
-#define _CRT_SECURE_NO_WARNINGS
 #include <iostream>
+#include <cstring>
 
 using namespace std;
 
-int Count(char* s) {
+int Count(const char* s) {
     int count = 0;
     for (int i = 0; s[i + 3] != '\0'; i++) {
         if (s[i] == s[i + 1] && s[i] == s[i + 2] && s[i] == s[i + 3]) {
             count++;
-            i += 3;  // Пропустити перевірену четвірку
+            i += 3;
         }
     }
     return count;
 }
 
-char* Change(char* s) {
-    char* t = new char[strlen(s) * 2 + 1];  
-    char* result = t;  // Запам'ятовуємо початок рядка
-    *t = '\0';  // Ініціалізуємо рядок як порожній
+char* Change(const char* s) {
+    size_t originalLength = strlen(s);
+    char* t = new char[originalLength * 2 + 1];
+    char* result = t;
 
-    for (int i = 0; s[i + 3] != '\0';) {
-        if (s[i] == s[i + 1] && s[i] == s[i + 2] && s[i] == s[i + 3]) {
-            strcat(t, "**");  // Замінюємо четвірку на зірочки
+    for (int i = 0; s[i] != '\0';) {
+        if (s[i + 3] != '\0' && s[i] == s[i + 1] && s[i] == s[i + 2] && s[i] == s[i + 3]) {
+            strcpy_s(t, 3, "**");
             t += 2;
-            i += 4;  // Пропускаємо четвірку
+            i += 4;
         }
         else {
-            *t++ = s[i++];  // Копіюємо символ, якщо це не частина четвірки
+            *t++ = s[i++];
         }
-        *t = '\0';  // Завершуємо поточний рядок
     }
-
-    // Копіюємо залишок рядка, якщо залишилося менше 4 символів
-    strcat(t, s + strlen(s) - (strlen(s) % 4));
-
-    strcpy(s, result);  // Копіюємо результат назад до початкового рядка
-    return result;  
+    t = '\0';
+    return result;
 }
 
 int main() {
     char str[101];
     cout << "Enter string:" << endl;
-    cin.getline(str, 100);  
+    cin.getline(str, 100);
 
-    cout << "String contained " << Count(str) << " groups of four identical characters." << endl;
+    int groupCount = Count(str);
+    cout << "String contained " << groupCount << " groups of four identical characters." << endl;
 
-    char* dest = Change(str);  // Викликаємо функцію для заміни
+    char* modifiedStr = Change(str);
+    cout << "Modified string: " << modifiedStr << endl;
 
-    cout << "Modified string (param) : " << str << endl;
-    cout << "Modified string (result): " << dest << endl;
-
+    delete[] modifiedStr;
 
     return 0;
 }
