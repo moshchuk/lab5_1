@@ -1,0 +1,45 @@
+#include <iostream>
+#include <cmath>
+
+// Макроси
+#define POW2(x) ((x) * (x)) // Піднесення до квадрату
+#define MAX(a, b) (((a) > (b)) ? (a) : (b)) // Максимальне значення
+#define MIN(a, b) (((a) < (b)) ? (a) : (b)) // Мінімальне значення
+#define ABS(x) ((x) < 0 ? -(x) : (x)) // Абсолютне значення
+
+// Макрос для обчислення значення w в залежності від умови
+#define CALCULATE_W(x, y, z) \
+    ((z) > 5 ? POW2(MAX((x) * pow((y), 3), (x) + (z))) : MIN((x) - (y) * (z), (x) * (y) + (z)))
+
+// Функція для введення чисел з клавіатури
+void inputValues(double& x, double& y, double& z) {
+    std::cout << "Input value for x: ";
+    std::cin >> x;
+    std::cout << "Input value for y: ";
+    std::cin >> y;
+    std::cout << "Input value for z: ";
+    std::cin >> z;
+}
+
+int main() {
+    double x, y, z, w;
+    char choice;
+
+    do {
+        // Введення значень змінних
+        inputValues(x, y, z);
+
+        // Обчислення значення w з використанням макросу
+        w = CALCULATE_W(x, y, z);
+
+        // Виведення результату
+        std::cout << "Result w = " << w << std::endl;
+
+        // Запит на повторення
+        std::cout << "Repeat? (y/n): ";
+        std::cin >> choice; 
+
+    } while (choice == 'y' || choice == 'Y');  // Повторення циклу, якщо обирається 'y' або 'Y'
+
+    return 0;
+}
