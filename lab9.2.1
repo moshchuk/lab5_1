@@ -1,15 +1,15 @@
+/////////////////////////////////////////////////////////////////////////
+// основний файл
+
 #include <iostream>
-#include <cmath>
+#include "macros.h" 
 
-// Макроси
-#define POW2(x) ((x) * (x)) // Піднесення до квадрату
-#define MAX(a, b) (((a) > (b)) ? (a) : (b)) // Максимальне значення
-#define MIN(a, b) (((a) < (b)) ? (a) : (b)) // Мінімальне значення
-#define ABS(x) ((x) < 0 ? -(x) : (x)) // Абсолютне значення
-
-// Макрос для обчислення значення w в залежності від умови
-#define CALCULATE_W(x, y, z) \
-    ((z) > 5 ? POW2(MAX((x) * pow((y), 3), (x) + (z))) : MIN((x) - (y) * (z), (x) * (y) + (z)))
+// Директиви умовної компіляції
+#ifdef DEBUG
+#define DEBUG_MSG(str) do { std::cout << "DEBUG: " << str << std::endl; } while( false )
+#else
+#define DEBUG_MSG(str) do { } while ( false )
+#endif
 
 // Функція для введення чисел з клавіатури
 void inputValues(double& x, double& y, double& z) {
@@ -32,14 +32,37 @@ int main() {
         // Обчислення значення w з використанням макросу
         w = CALCULATE_W(x, y, z);
 
+        // Виведення значення w, використовуючи умовну компіляцію для відладки
+        DEBUG_MSG("Calculated w value: " << w);
+
         // Виведення результату
         std::cout << "Result w = " << w << std::endl;
 
         // Запит на повторення
         std::cout << "Repeat? (y/n): ";
-        std::cin >> choice; 
+        std::cin >> choice;
 
-    } while (choice == 'y' || choice == 'Y');  // Повторення циклу, якщо обирається 'y' або 'Y'
+    } while (choice == 'y' || choice == 'n'); // Повторення циклу, якщо обирається 'y' або 'n'
 
     return 0;
 }
+///////////////////////////////////////////////////////////////////////////
+// заголовковий файл для макросів
+
+#pragma once
+#ifndef MY_MACROS_H
+#define MY_MACROS_H
+
+#include <cmath>
+
+// Макроси
+#define POW2(x) ((x) * (x)) // Піднесення до квадрату
+#define MAX(a, b) (((a) > (b)) ? (a) : (b)) // Максимальне значення
+#define MIN(a, b) (((a) < (b)) ? (a) : (b)) // Мінімальне значення
+#define ABS(x) ((x) < 0 ? -(x) : (x)) // Абсолютне значення
+
+// Макрос для обчислення значення w в залежності від умови
+#define CALCULATE_W(x, y, z) \
+    ((z) > 5 ? POW2(MAX((x) * pow((y), 3), (x) + (z))) : MIN((x) - (y) * (z), (x) * (y) + (z)))
+
+#endif // MY_MACROS_H
