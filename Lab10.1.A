@@ -1,0 +1,109 @@
+#include <iostream>
+#include <string>
+#include <vector>
+
+using namespace std;
+
+enum Speciality { ComputerScience, Mathematics, Physics };
+
+struct Student {
+    string surname;
+    int course;
+    Speciality speciality;
+    int physicsGrade;
+    int mathGrade;
+    union {
+        int informaticsGrade;
+    };
+};
+
+void inputStudentData(vector<Student>& students, int numStudents) {
+    for (int i = 0; i < numStudents; ++i) {
+        Student student;
+        cout << "Enter surname of student " << i + 1 << ": ";
+        cin >> student.surname;
+        cout << "Enter course of student (1-5): ";
+        cin >> student.course;
+        int specialityInput;
+        cout << "Enter speciality (0 - Computer Science, 1 - Mathematics, 2 - Physics): ";
+        cin >> specialityInput;
+        student.speciality = static_cast<Speciality>(specialityInput);
+
+        cout << "Enter physics grade: ";
+        cin >> student.physicsGrade;
+        cout << "Enter math grade: ";
+        cin >> student.mathGrade;
+        cout << "Enter informatics grade: ";
+        cin >> student.informaticsGrade;
+
+        students.push_back(student);
+    }
+}
+
+void printStudentsTable(const vector<Student>& students) {
+    cout << "----------------------------------------------------------\n";
+    cout << "|#|Surname | Course | Speciality|Physics|Math|Informatics|\n";
+    cout << "----------------------------------------------------------\n";
+
+    for (size_t i = 0; i < students.size(); ++i) {
+        cout << "| " << i + 1 << " | " << students[i].surname << " | " << students[i].course << " | ";
+
+        switch (students[i].speciality) {
+        case ComputerScience: cout << "Computer Science | "; break;
+        case Mathematics: cout << "Mathematics      | "; break;
+        case Physics: cout << "Physics          | "; break;
+        }
+
+        cout << students[i].physicsGrade << "     | " << students[i].mathGrade << "  | "
+            << students[i].informaticsGrade << "          |\n";
+    }
+
+    cout << "----------------------------------------------------------\n";
+}
+
+int countExcellentGrades(const vector<Student>& students, const string& subject) {
+    int count = 0;
+    for (const auto& student : students) {
+        if ((subject == "physics" && student.physicsGrade == 5) ||
+            (subject == "math" && student.mathGrade == 5) ||
+            (subject == "informatics" && student.informaticsGrade == 5)) {
+            ++count;
+        }
+    }
+    return count;
+}
+
+int countStudentsWithExcellentGradesInPhysicsAndMath(const vector<Student>& students) {
+    int count = 0;
+    for (const auto& student : students) {
+        if (student.physicsGrade == 5 && student.mathGrade == 5) {
+            ++count;
+        }
+    }
+    return count;
+}
+
+int main() {
+    int numStudents;
+    cout << "Enter the number of students: ";
+    cin >> numStudents;
+
+    vector<Student> students;
+    students.reserve(numStudents);
+
+    inputStudentData(students, numStudents);
+    printStudentsTable(students);
+
+    int excellentPhysics = countExcellentGrades(students, "physics");
+    int excellentMath = countExcellentGrades(students, "math");
+    int excellentInformatics = countExcellentGrades(students, "informatics");
+
+    cout << "Number of 'excellent' grades in Physics: " << excellentPhysics << endl;
+    cout << "Number of 'excellent' grades in Math: " << excellentMath << endl;
+    cout << "Number of 'excellent' grades in Informatics: " << excellentInformatics << endl;
+
+    int studentsWithExcellentPhysicsAndMath = countStudentsWithExcellentGradesInPhysicsAndMath(students);
+    cout << "Number of students with '5' in Physics and Math: " << studentsWithExcellentPhysicsAndMath << endl;
+
+    return 0;
+}
