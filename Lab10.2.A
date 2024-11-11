@@ -1,0 +1,151 @@
+#include <iostream>
+#include <iomanip>
+#include <string>
+#include <Windows.h> 
+using namespace std;
+
+// Перелічення спеціальностей
+enum Specialty { COMPUTER_SCIENCE, MATHEMATICS, PHYSICS };
+string specialtyStr[] = { "Комп'ютерні науки", "Математика", "Фізика" };
+
+// Структура для зберігання даних студента
+struct Student
+{
+    string lastName;      
+    int year;              
+    Specialty specialty;  
+    double physicsGrade;   
+    double mathGrade;     
+    double compSciGrade;   
+};
+
+// Прототипи функцій
+void Create(Student* s, const int N);             
+void Print(Student* s, const int N);               
+void CheckGrade(double& grade);                    
+void CheckYear(int& year);                         
+void CheckSpecialty(int& specialtyIndex);          
+
+int main()
+{
+    // Налаштування для підтримки кирилиці в консолі
+    SetConsoleCP(1251);    // Встановлення кодування для вводу
+    SetConsoleOutputCP(1251); // Встановлення кодування для виводу
+
+    int N;
+    cout << "Введіть кількість студентів N: ";
+    cin >> N;
+
+    Student* students = new Student[N];
+    int menuItem;
+
+    do {
+        cout << endl << "Виберіть дію:" << endl;
+        cout << "[1] - введення даних студентів" << endl;
+        cout << "[2] - виведення таблиці студентів" << endl;
+        cout << "[0] - вихід" << endl;
+        cout << "Введіть значення: ";
+        cin >> menuItem;
+
+        switch (menuItem) {
+        case 1:
+            Create(students, N);  // Виклик функції для введення даних
+            break;
+        case 2:
+            Print(students, N);  // Виклик функції для виведення даних
+            break;
+        case 0:
+            break;
+        default:
+            cout << "Невірний ввід! Спробуйте ще раз." << endl;
+            break;
+        }
+    } while (menuItem != 0);  // Продовження, поки користувач не вибере вихід
+
+    delete[] students;  // Звільнення пам'яті після завершення програми
+    return 0;
+}
+
+// Функція для введення даних студентів
+void Create(Student* s, const int N) {
+    int specialtyIndex;
+
+    for (int i = 0; i < N; i++) {
+        cout << "Студент № " << i + 1 << ":" << endl;
+        cin.ignore();  // Очищення буфера після попереднього вводу
+
+        cout << "Прізвище: ";
+        getline(cin, s[i].lastName); 
+
+        cout << "Курс: ";
+        cin >> s[i].year;  
+        CheckYear(s[i].year);  
+
+        cout << "Спеціальність (0 - Комп'ютерні науки, 1 - Математика, 2 - Фізика): ";
+        cin >> specialtyIndex;  
+        CheckSpecialty(specialtyIndex);  
+        s[i].specialty = static_cast<Specialty>(specialtyIndex);  // Присвоєння спеціальності
+
+        cout << "Оцінка з фізики: ";
+        cin >> s[i].physicsGrade;  
+        CheckGrade(s[i].physicsGrade);  
+
+        cout << "Оцінка з математики: ";
+        cin >> s[i].mathGrade;  
+        CheckGrade(s[i].mathGrade);  
+
+        cout << "Оцінка з інформатики: ";
+        cin >> s[i].compSciGrade;  
+        CheckGrade(s[i].compSciGrade);  
+
+        cout << endl;
+    }
+}
+
+// Функція для виведення таблиці студентів
+void Print(Student* s, const int N) {
+    cout << "==========================================================================" << endl;
+    cout << "| №  | Прізвище   | Курс | Спеціальність            | Фізика | Математика | Інформатика |" << endl;
+    cout << "--------------------------------------------------------------------------" << endl;
+
+    for (int i = 0; i < N; i++) {
+        // Виведення даних для кожного студента в таблиці
+        cout << "| " << setw(3) << right << i + 1 << " ";
+        cout << "| " << setw(10) << left << s[i].lastName;
+        cout << "| " << setw(4) << right << s[i].year;
+        cout << "| " << setw(25) << left << specialtyStr[s[i].specialty];
+        cout << "| " << setw(6) << right << fixed << setprecision(2) << s[i].physicsGrade;
+        cout << "| " << setw(10) << right << fixed << setprecision(2) << s[i].mathGrade;
+        cout << "| " << setw(12) << right << fixed << setprecision(2) << s[i].compSciGrade;
+        cout << " |" << endl;
+    }
+
+    cout << "==========================================================================" << endl;
+}
+
+// Функція для перевірки оцінки
+void CheckGrade(double& grade) {
+    // Якщо оцінка некоректна (менше 0 або більше 5), запитуємо повторно
+    while (grade < 0.0 || grade > 5.0) {
+        cout << "Невірна оцінка. Спробуйте ще раз: ";
+        cin >> grade;
+    }
+}
+
+// Функція для перевірки курсу
+void CheckYear(int& year) {
+    // Якщо курс некоректний (не в межах від 1 до 4), запитуємо повторно
+    while (year < 1 || year > 4) {
+        cout << "Невірний курс. Спробуйте ще раз: ";
+        cin >> year;
+    }
+}
+
+// Функція для перевірки індексу спеціальності
+void CheckSpecialty(int& specialtyIndex) {
+    // Якщо індекс спеціальності некоректний (не в межах від 0 до 2), запитуємо повторно
+    while (specialtyIndex < 0 || specialtyIndex > 2) {
+        cout << "Невірна спеціальність. Спробуйте ще раз: ";
+        cin >> specialtyIndex;
+    }
+}
