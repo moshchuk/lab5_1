@@ -1,6 +1,8 @@
 #include <iostream>
-#include <string>
 #include <vector>
+#include <string>
+#include <iomanip>
+#include <Windows.h>
 
 using namespace std;
 
@@ -12,18 +14,17 @@ struct Student {
     Speciality speciality;
     int physicsGrade;
     int mathGrade;
-    union {
-        int informaticsGrade;
-    };
+    int informaticsGrade;
 };
 
-void inputStudentData(vector<Student>& students, int numStudents) {
+void inputStudent(vector<Student>& students, int numStudents) {
     for (int i = 0; i < numStudents; ++i) {
         Student student;
         cout << "Enter surname of student " << i + 1 << ": ";
         cin >> student.surname;
         cout << "Enter course of student (1-5): ";
         cin >> student.course;
+
         int specialityInput;
         cout << "Enter speciality (0 - Computer Science, 1 - Mathematics, 2 - Physics): ";
         cin >> specialityInput;
@@ -41,27 +42,31 @@ void inputStudentData(vector<Student>& students, int numStudents) {
 }
 
 void printStudentsTable(const vector<Student>& students) {
-    cout << "----------------------------------------------------------\n";
-    cout << "|#|Surname | Course | Speciality|Physics|Math|Informatics|\n";
-    cout << "----------------------------------------------------------\n";
+    cout << "-------------------------------------------------------------------\n";
+    cout << "| # |   Surname   | Course |    Speciality    | Physics | Math | Informatics |\n";
+    cout << "-------------------------------------------------------------------\n";
 
     for (size_t i = 0; i < students.size(); ++i) {
-        cout << "| " << i + 1 << " | " << students[i].surname << " | " << students[i].course << " | ";
+        cout << "| " << setw(2) << i + 1 << " | "
+            << setw(11) << left << students[i].surname << " | "
+            << setw(6) << right << students[i].course << " | ";
 
         switch (students[i].speciality) {
-        case ComputerScience: cout << "Computer Science | "; break;
-        case Mathematics: cout << "Mathematics      | "; break;
-        case Physics: cout << "Physics          | "; break;
+        case ComputerScience: cout << setw(15) << left << "Computer Science"; break;
+        case Mathematics: cout << setw(15) << left << "Mathematics"; break;
+        case Physics: cout << setw(15) << left << "Physics"; break;
         }
 
-        cout << students[i].physicsGrade << "     | " << students[i].mathGrade << "  | "
-            << students[i].informaticsGrade << "          |\n";
+        cout << " | "
+            << setw(7) << right << students[i].physicsGrade << " | "
+            << setw(4) << right << students[i].mathGrade << " | "
+            << setw(11) << right << students[i].informaticsGrade << " |\n";
     }
 
-    cout << "----------------------------------------------------------\n";
+    cout << "-------------------------------------------------------------------\n";
 }
 
-int countExcellentGrades(const vector<Student>& students, const string& subject) {
+int countExcellent(const vector<Student>& students, const string& subject) {
     int count = 0;
     for (const auto& student : students) {
         if ((subject == "physics" && student.physicsGrade == 5) ||
@@ -73,7 +78,7 @@ int countExcellentGrades(const vector<Student>& students, const string& subject)
     return count;
 }
 
-int countStudentsWithExcellentGradesInPhysicsAndMath(const vector<Student>& students) {
+int countPhysicsAndMath(const vector<Student>& students) {
     int count = 0;
     for (const auto& student : students) {
         if (student.physicsGrade == 5 && student.mathGrade == 5) {
@@ -91,18 +96,19 @@ int main() {
     vector<Student> students;
     students.reserve(numStudents);
 
-    inputStudentData(students, numStudents);
-    printStudentsTable(students);
+    inputStudent(students, numStudents); 
+    printStudentsTable(students); 
 
-    int excellentPhysics = countExcellentGrades(students, "physics");
-    int excellentMath = countExcellentGrades(students, "math");
-    int excellentInformatics = countExcellentGrades(students, "informatics");
-
+    int excellentPhysics = countExcellent(students, "physics");
     cout << "Number of 'excellent' grades in Physics: " << excellentPhysics << endl;
+
+    int excellentMath = countExcellent(students, "math");
     cout << "Number of 'excellent' grades in Math: " << excellentMath << endl;
+
+    int excellentInformatics = countExcellent(students, "informatics");
     cout << "Number of 'excellent' grades in Informatics: " << excellentInformatics << endl;
 
-    int studentsWithExcellentPhysicsAndMath = countStudentsWithExcellentGradesInPhysicsAndMath(students);
+    int studentsWithExcellentPhysicsAndMath = countPhysicsAndMath(students);
     cout << "Number of students with '5' in Physics and Math: " << studentsWithExcellentPhysicsAndMath << endl;
 
     return 0;
