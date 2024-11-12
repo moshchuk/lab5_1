@@ -1,0 +1,259 @@
+//////////////////////////////////////////////////////
+//  Головний файл програми
+#include "product.h"
+#include <iostream>
+#include <Windows.h>
+#include <vector>
+
+using namespace std;
+
+int main() {
+    SetConsoleCP(1251); // встановлення сторінки win-cp1251 в потік вводу
+    SetConsoleOutputCP(1251); // встановлення сторінки win-cp1251 в потік виводу
+    vector<Product> products;
+    int choice;
+
+    do {
+        cout << "\nМеню:\n";
+        cout << "1. Додати товар\n";
+        cout << "2. Видалити товар\n";
+        cout << "3. Редагувати товар\n";
+        cout << "4. Сортувати товари\n";
+        cout << "5. Вивести всi товари\n";
+        cout << "6. Пошук товарiв за магазином\n";
+        cout << "7. Пошук товарiв за дiапазоном цiн\n";
+        cout << "8. Зберегти товари у файл\n";
+        cout << "9. Завантажити товари з файлу\n";
+        cout << "0. Вихiд\n";
+        cout << "Виберiть опцiю: ";
+        cin >> choice;
+
+        switch (choice) {
+        case 1: Add(products); break;
+        case 2: Delete(products); break;
+        case 3: Edit(products); break;
+        case 4: Sort(products); break;
+        case 5: Display(products); break;
+        case 6: SearchByStore(products); break;
+        case 7: SearchByPrice(products); break;
+        case 8: Save(products); break;
+        case 9: LoadFromFile(products); break;
+        case 0: cout << "Вихід з програми.\n"; break;
+        default: cout << "Невірна опція. Спробуйте ще раз.\n"; break;
+        }
+    } while (choice != 0);
+
+    return 0;
+}
+//////////////////////////////////////////////////
+// Реалізація функцій для роботи з товаром
+
+#include "product.h"
+#include <iostream>
+#include <iomanip>
+#include <fstream>
+#include <algorithm>
+
+using namespace std;
+
+// Додавання нового товару
+void Add(vector<Product>& products) {
+    Product product;
+    cout << "Введіть назву товару: ";
+    cin.ignore();
+    getline(cin, product.name);
+    cout << "Введіть назву магазину: ";
+    getline(cin, product.store);
+    cout << "Введіть ціну (в грн): ";
+    cin >> product.price;
+    cout << "Введіть кількість: ";
+    cin >> product.quantity;
+    cout << "Введіть одиницю вимірювання (наприклад, упак, кг): ";
+    cin.ignore();
+    getline(cin, product.unit);
+    products.push_back(product);
+    cout << "Товар додано успішно.\n";
+}
+
+// Видалення товару за індексом
+void Delete(vector<Product>& products) {
+    int index;
+    cout << "Введіть індекс товару для видалення: ";
+    cin >> index;
+    if (index < 1 || index > products.size()) {
+        cout << "Невірний індекс.\n";
+    } else {
+        products.erase(products.begin() + index - 1);
+        cout << "Товар видалено успішно.\n";
+    }
+}
+
+// Редагування інформації про товар
+void Edit(vector<Product>& products) {
+    int index;
+    cout << "Введіть індекс товару для редагування: ";
+    cin >> index;
+    if (index < 1 || index > products.size()) {
+        cout << "Невірний індекс.\n";
+    } else {
+        Product& product = products[index - 1];
+        cout << "Редагування " << product.name << " в " << product.store << endl;
+        cout << "Введіть нову назву товару: ";
+        cin.ignore();
+        getline(cin, product.name);
+        cout << "Введіть нову назву магазину: ";
+        getline(cin, product.store);
+        cout << "Введіть нову ціну (в грн): ";
+        cin >> product.price;
+        cout << "Введіть нову кількість: ";
+        cin >> product.quantity;
+        cout << "Введіть нову одиницю вимірювання: ";
+        cin.ignore();
+        getline(cin, product.unit);
+        cout << "Товар відредаговано успішно.\n";
+    }
+}
+
+// Сортування товарів за назвою магазину або загальною вартістю
+void Sort(vector<Product>& products) {
+    int sortOption;
+    cout << "Сортувати за: 1 - Назвою магазину, 2 - Загальною вартістю: ";
+    cin >> sortOption;
+
+    if (sortOption == 1) {
+        sort(products.begin(), products.end(), [](const Product& a, const Product& b) {
+            return a.store < b.store;
+        });
+    } else if (sortOption == 2) {
+        sort(products.begin(), products.end(), [](const Product& a, const Product& b) {
+            return Calculate(a) > Calculate(b);
+        });
+    } else {
+        cout << "Невірна опція. Сортування скасовано.\n";
+    }
+}
+
+// Виведення всіх товарів
+void Display(const vector<Product>& products) {
+    cout << left << setw(15) << "Товар" << setw(15) << "Магазин" << setw(10) << "Ціна"
+         << setw(10) << "Кількість" << setw(10) << "Одиниця" << setw(15) << "Загальна Вартість\n";
+    for (size_t i = 0; i < products.size(); ++i) {
+        const Product& product = products[i];
+        cout << left << setw(15) << product.name << setw(15) << product.store << setw(10)
+             << product.price << setw(10) << product.quantity << setw(10) << product.unit
+             << setw(15) << Calculate(product) << endl;
+    }
+}
+
+// Пошук товарів за назвою магазину
+void SearchByStore(const vector<Product>& products) {
+    string storeName;
+    cout << "Введіть назву магазину: ";
+    cin.ignore();
+    getline(cin, storeName);
+
+    for (const Product& product : products) {
+        if (product.store == storeName) {
+            cout << "Товар: " << product.name << ", Ціна: " << product.price
+                 << ", Кількість: " << product.quantity << " " << product.unit << endl;
+        }
+    }
+}
+
+// Пошук товарів за діапазоном цін
+void SearchByPrice(const vector<Product>& products) {
+    double minPrice, maxPrice;
+    cout << "Введіть мінімальну ціну: ";
+    cin >> minPrice;
+    cout << "Введіть максимальну ціну: ";
+    cin >> maxPrice;
+
+    for (const Product& product : products) {
+        if (product.price >= minPrice && product.price <= maxPrice) {
+            cout << "Товар: " << product.name << ", Магазин: " << product.store
+                 << ", Ціна: " << product.price << endl;
+        }
+    }
+}
+
+// Збереження товарів у файл
+void Save(const vector<Product>& products) {
+    string filename;
+    cout << "Введіть назву файлу для збереження: ";
+    cin >> filename;
+    ofstream file(filename);
+    if (file.is_open()) {
+        for (const Product& product : products) {
+            file << product.name << "\n" << product.store << "\n" << product.price << "\n"
+                 << product.quantity << "\n" << product.unit << "\n";
+        }
+        file.close();
+        cout << "Товари успішно збережені у файл.\n";
+    } else {
+        cout << "Помилка відкриття файлу.\n";
+    }
+}
+
+// Завантаження товарів з файлу
+void LoadFromFile(vector<Product>& products) {
+    string filename;
+    cout << "Введіть назву файлу для завантаження: ";
+    cin >> filename;
+    ifstream file(filename);
+    if (file.is_open()) {
+        products.clear();
+        while (!file.eof()) {
+            Product product;
+            getline(file, product.name);
+            getline(file, product.store);
+            file >> product.price;
+            file >> product.quantity;
+            file.ignore();
+            getline(file, product.unit);
+            if (!product.name.empty()) products.push_back(product);
+        }
+        file.close();
+        cout << "Товари успішно завантажені з файлу.\n";
+    } else {
+        cout << "Помилка відкриття файлу.\n";
+    }
+}
+
+// Розрахунок загальної вартості товару
+double Calculate(const Product& product) {
+    return product.price * product.quantity;
+}
+/////////////////////////////////////////
+// Заголовковий файл для структури Product
+
+#pragma once
+#ifndef PRODUCT_H
+#define PRODUCT_H
+
+#include <string>
+#include <vector>
+
+using namespace std;
+
+// Структура для зберігання інформації про товар
+struct Product {
+    string name;
+    string store;
+    double price;
+    int quantity;
+    string unit;
+};
+
+// Прототипи функцій
+void Add(vector<Product>& products);          
+void Delete(vector<Product>& products);       
+void Edit(vector<Product>& products);         
+void Sort(vector<Product>& products);        
+void Display(const vector<Product>& products);  
+void SearchByStore(const vector<Product>& products); // Пошук товарів за магазином
+void SearchByPrice(const vector<Product>& products); // Пошук товарів за діапазоном цін
+void Save(const vector<Product>& products);  
+void LoadFromFile(vector<Product>& products);        
+double Calculate(const Product& product);  // Розрахунок загальної вартості
+
+#endif // PRODUCT_H
