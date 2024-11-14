@@ -1,0 +1,55 @@
+#define _CRT_SECURE_NO_WARNINGS
+#include <iostream>
+#include <fstream>
+#include <string>
+using namespace std;
+
+void CreateTXT(char* fname) // створення файлу з введених рядків
+{
+    ofstream fout(fname); // відкрили файл для запису
+    char ch; // відповідь користувача – чи продовжувати введення
+    string s; // введений користувачем рядок
+    do
+    {
+        cin.get(); // очищуємо буфер клавіатури – щоб не було символу
+        cin.sync(); // "кінець рядка", який залишився після вводу числа
+        cout << "enter line: "; getline(cin, s); // ввели рядок
+        fout << s << endl; // записали його у файл
+        cout << "continue? (y/n): "; cin >> ch;
+    } while (ch == 'y' || ch == 'N');
+    cout << endl;
+}
+void PrintTXT(char* fname) {
+    ifstream fin(fname);
+    string s;
+    while (getline(fin, s)) {
+        cout << s << endl;
+    }
+    cout << endl;
+}
+
+bool Four(const std::string& line) {
+    for (size_t i = 0; i <= line.length() - 4; i++) {
+        if (line[i] == line[i + 1] && line[i + 1] == line[i + 2] && line[i + 2] == line[i + 3]) {
+            return true; 
+        }
+    }
+    return false; 
+}
+
+int main()
+{
+    setlocale(LC_CTYPE, "ukr");
+    char fname[100];
+    cout << " Введiть назву проекту: "; cin >> fname;
+    CreateTXT(fname);
+    PrintTXT(fname);
+    
+    if (Four(fname)) {
+        cout << " Файл мiстить четвiрку сусiднiх символiв " << endl;
+    }
+    else {
+        cout << " Файл не мiстить четвiрку сусiднiх символiв" << endl;
+    }
+    return 0;
+}
