@@ -1,0 +1,127 @@
+#define _CRT_SECURE_NO_WARNINGS
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <iomanip>
+#include <Windows.h>
+using namespace std;
+
+// Функція створення файлу з даними
+void CreateTXT(char* fname) {
+    ofstream fout(fname); // відкрили файл для запису
+    char ch;              // відповідь користувача – чи продовжувати введення
+    string company, product;
+    double price;
+
+    do {
+        cin.sync(); // очищуємо буфер клавіатури
+        cout << "Введіть назву фірми: "; cin >> company;
+        cout << "Введіть назву товару: "; cin >> product;
+        cout << "Введіть ціну товару в USD: "; cin >> price;
+
+        fout << company << " " << product << " " << fixed << setprecision(2) << price << endl; // записали у файл
+
+        cout << "Продовжити? (y/n): "; cin >> ch;
+    } while (ch == 'y' || ch == 'Y');
+
+    fout.close();
+    cout << "Файл успішно створено!" << endl;
+}
+
+// Функція для виведення вмісту файлу на екран
+void PrintTXT(char* fname) {
+    ifstream fin(fname); // відкрили файл для зчитування
+    if (!fin.is_open()) {
+        cerr << "Помилка! Не вдалося відкрити файл для читання." << endl;
+        return;
+    }
+
+    string line; // рядок з файлу
+    while (getline(fin, line)) {
+        cout << line << endl;
+    }
+    cout << endl;
+
+    fin.close();
+}
+
+// Функція для конвертації цін та створення нового файлу
+void ConvertPrices(char* inputFileName, char* outputFileName, double exchangeRate) {
+    ifstream fin(inputFileName);   // відкрили файл для читання
+    ofstream fout(outputFileName); // відкрили файл для запису
+
+    if (!fin.is_open() || !fout.is_open()) {
+        cerr << "Помилка відкриття файлу!" << endl;
+        return;
+    }
+
+    string company, product;
+    double priceUSD, priceUAH;
+
+    while (fin >> company >> product >> priceUSD) {
+        priceUAH = priceUSD * exchangeRate;
+        fout << company << " " << product << " "
+            << fixed << setprecision(2) << priceUSD << " USD "
+            << priceUAH << " UAH" << endl;
+    }
+
+    cout << "Ціни успішно конвертовані та записані у файл: " << outputFileName << endl;
+
+    fin.close();
+    fout.close();
+}
+
+// Функція для відображення меню
+void DisplayMenu() {
+    cout << "\n=== МЕНЮ ===\n";
+    cout << "1. Створити файл\n";
+    cout << "2. Вивести вміст файлу\n";
+    cout << "3. Конвертувати ціни у гривні\n";
+    cout << "4. Вихід\n";
+    cout << "Ваш вибір: ";
+}
+
+// Головна функція
+int main() {
+
+    // Налаштування для підтримки кирилиці в консолі
+    SetConsoleCP(1251);    // Встановлення кодування для вводу
+    SetConsoleOutputCP(1251); // Встановлення кодування для виводу
+
+    char inputFileName[100], outputFileName[100];
+    double exchangeRate;
+    int choice;
+
+    do {
+        DisplayMenu();
+        cin >> choice;
+
+        switch (choice) {
+        case 1:
+            cout << "Введіть ім'я вхідного файлу: "; cin >> inputFileName;
+            CreateTXT(inputFileName);
+            break;
+
+        case 2:
+            cout << "Введіть ім'я файлу для читання: "; cin >> inputFileName;
+            PrintTXT(inputFileName);
+            break;
+
+        case 3:
+            cout << "Введіть ім'я вхідного файлу: "; cin >> inputFileName;
+            cout << "Введіть ім'я вихідного файлу: "; cin >> outputFileName;
+            cout << "Введіть курс гривні (1 USD = ? UAH): "; cin >> exchangeRate;
+            ConvertPrices(inputFileName, outputFileName, exchangeRate);
+            break;
+
+        case 4:
+            cout << "Вихід з програми. До побачення!" << endl;
+            break;
+
+        default:
+            cerr << "Помилка! Невірний вибір. Спробуйте ще раз." << endl;
+        }
+    } while (choice != 4);
+
+    return 0;
+}
