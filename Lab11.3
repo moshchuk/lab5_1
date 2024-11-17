@@ -1,0 +1,190 @@
+#define _CRT_SECURE_NO_WARNINGS
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <sstream>
+#include <vector>
+#include <Windows.h>
+
+using namespace std;
+
+// Структура для товару
+struct Product {
+    string name;        // Назва товару
+    string store;       // Назва магазину
+    float price;        // Вартість одиниці товару
+    int quantity;       // Кількість товару
+    string unit;        // Одиниця вимірювання (наприклад, "шт.", "кг.")
+};
+
+// Функція для створення і заповнення файлу
+void Create(const char* fname) {
+    ofstream fout(fname); // відкриваємо файл для запису
+    int n;
+    cout << "Введіть кількість товарів: ";
+    cin >> n;
+    cin.ignore(); // очищуємо буфер після введення числа
+
+    Product product;
+    for (int i = 0; i < n; i++) {
+        cout << "Введіть дані для товару " << i + 1 << ":\n";
+        cout << "Назва: ";
+        getline(cin, product.name);
+        cout << "Магазин: ";
+        getline(cin, product.store);
+        cout << "Ціна (в грн): ";
+        cin >> product.price;
+        cout << "Кількість: ";
+        cin >> product.quantity;
+        cin.ignore(); // очищуємо буфер після введення числа
+        cout << "Одиниця вимірювання: ";
+        getline(cin, product.unit);
+
+        fout << product.name << ";" << product.store << ";" << product.price << ";"
+            << product.quantity << ";" << product.unit << endl;
+    }
+}
+
+// Функція для виведення всіх товарів із файлу
+void Display(const char* fname) {
+    ifstream fin(fname);
+    string line;
+    while (getline(fin, line)) {
+        stringstream ss(line);
+        string name, store, unit;
+        float price;
+        int quantity;
+
+        getline(ss, name, ';');
+        getline(ss, store, ';');
+        ss >> price;
+        ss.ignore(1); // пропускаємо символ ';'
+        ss >> quantity;
+        ss.ignore(1); // пропускаємо символ ';'
+        getline(ss, unit);
+
+        cout << "Товар: " << name << ", Магазин: " << store << ", Ціна: " << price
+            << " грн, Кількість: " << quantity << " " << unit << endl;
+    }
+}
+
+// Функція для пошуку товарів за назвою магазину
+void Search(const char* fname, const string& storeName) {
+    ifstream fin(fname);
+    string line;
+    bool found = false;
+
+    while (getline(fin, line)) {
+        stringstream ss(line);
+        string name, store, unit;
+        float price;
+        int quantity;
+
+        getline(ss, name, ';');
+        getline(ss, store, ';');
+        ss >> price;
+        ss.ignore(1); // пропускаємо символ ';'
+        ss >> quantity;
+        ss.ignore(1); // пропускаємо символ ';'
+        getline(ss, unit);
+
+        if (store == storeName) {
+            cout << "Товар: " << name << ", Магазин: " << store << ", Ціна: " << price
+                << " грн, Кількість: " << quantity << " " << unit << endl;
+            found = true;
+        }
+    }
+
+    if (!found) {
+        cout << "Товари в магазині " << storeName << " не знайдено.\n";
+    }
+}
+
+// Функція для пошуку товарів за діапазоном вартості
+void SearchByPrice(const char* fname, float minPrice, float maxPrice) {
+    ifstream fin(fname);
+    string line;
+    bool found = false;
+
+    while (getline(fin, line)) {
+        stringstream ss(line);
+        string name, store, unit;
+        float price;
+        int quantity;
+
+        getline(ss, name, ';');
+        getline(ss, store, ';');
+        ss >> price;
+        ss.ignore(1); // пропускаємо символ ';'
+        ss >> quantity;
+        ss.ignore(1); // пропускаємо символ ';'
+        getline(ss, unit);
+
+        if (price >= minPrice && price <= maxPrice) {
+            cout << "Товар: " << name << ", Магазин: " << store << ", Ціна: " << price
+                << " грн, Кількість: " << quantity << " " << unit << endl;
+            found = true;
+        }
+    }
+
+    if (!found) {
+        cout << "Товари в цьому ціновому діапазоні не знайдено.\n";
+    }
+}
+
+// Головне меню програми
+void ShowMenu() {
+    cout << "\nМеню:\n";
+    cout << "1. Створити файл товарів\n";
+    cout << "2. Переглянути всі товари\n";
+    cout << "3. Пошук товарів за магазином\n";
+    cout << "4. Пошук товарів за діапазоном вартості\n";
+    cout << "5. Вийти\n";
+    cout << "Введіть ваш вибір: ";
+}
+
+int main() {
+    // Налаштування для підтримки кирилиці в консолі
+    SetConsoleCP(1251);    // Встановлення кодування для вводу
+    SetConsoleOutputCP(1251); // Встановлення кодування для виводу
+
+    const char* fname = "products.txt";
+    int choice;
+    string storeName;
+    float minPrice, maxPrice;
+
+    do {
+        ShowMenu();
+        cin >> choice;
+
+        switch (choice) {
+        case 1:
+            Create(fname);
+            break;
+        case 2:
+            Display(fname);
+            break;
+        case 3:
+            cout << "Введіть назву магазину: ";
+            cin.ignore();
+            getline(cin, storeName);
+            Search(fname, storeName);
+            break;
+        case 4:
+            cout << "Введіть мінімальну ціну: ";
+            cin >> minPrice;
+            cout << "Введіть максимальну ціну: ";
+            cin >> maxPrice;
+            SearchByPrice(fname, minPrice, maxPrice);
+            break;
+        case 5:
+            cout << "Вихід з програми.\n";
+            break;
+        default:
+            cout << "Невірний вибір, спробуйте ще раз.\n";
+            break;
+        }
+    } while (choice != 5);
+
+    return 0;
+}
