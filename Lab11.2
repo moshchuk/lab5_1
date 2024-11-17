@@ -1,0 +1,61 @@
+#define _CRT_SECURE_NO_WARNINGS
+#include <iostream>
+#include <fstream>
+#include <string>
+using namespace std;
+
+// Створення файлу з введених рядків
+void CreateTXT(char* fname) {
+    ofstream fout(fname); // відкрили файл для запису
+    char ch; // відповідь користувача – чи продовжувати введення
+    string s; // введений користувачем рядок
+    do {
+        cin.get(); // очищуємо буфер клавіатури – щоб не було символу "кінець рядка"
+        cin.sync();
+        cout << "Enter line: ";
+        getline(cin, s); // ввели рядок
+        fout << s << endl; // записали його у файл
+        cout << "Continue? (y/n): ";
+        cin >> ch;
+    } while (ch == 'y' || ch == 'Y');
+    cout << endl;
+}
+
+// Виведення файлу на екран
+void PrintTXT(char* fname) {
+    ifstream fin(fname); // відкрили файл для зчитування
+    string s; // прочитаний рядок
+    while (getline(fin, s)) { // поки можна прочитати рядок
+        cout << s << endl; // виводимо його на екран
+    }
+    cout << endl;
+}
+
+// Підрахунок кількості слів, у яких перший і останній символ однакові
+int Count(char* fname) {
+    ifstream fin(fname); // відкрили файл для зчитування
+    string word;
+    int count = 0;
+
+    while (fin >> word) { // поки можна прочитати слово
+        if (!word.empty() && word.front() == word.back()) { // перевірка, чи перший і останній символ однакові
+            count++;
+        }
+    }
+
+    return count;
+}
+
+int main() {
+    char fname[100]; // ім'я першого файлу
+    cout << "Enter file name: ";
+    cin >> fname;
+    CreateTXT(fname); // створюємо файл з введених рядків
+    PrintTXT(fname); // виводимо вміст файлу на екран
+
+    // Обчислюємо кількість слів з однаковим першим і останнім символом
+    int count = Count(fname);
+    cout << "Number of words with the same first and last character: " << count << endl;
+
+    return 0;
+}
