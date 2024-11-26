@@ -1,0 +1,94 @@
+#include <iostream>
+#include <fstream>
+#include <cmath>
+#include <locale>
+
+using namespace std;
+
+// Функція для створення файлу з дійсними числами
+void createFile(const string& filename) {
+    ofstream outFile(filename);
+    if (!outFile) {
+        cerr << "Не вдалося створити файл: " << filename << endl;
+        return;
+    }
+
+    // Записуємо масив дійсних чисел у файл
+    double numbers[] = { 0.5, -1.2, 10, 100, -0.8, 0, 1, 3.5, 7 };
+    for (double num : numbers) {
+        outFile << num << " ";
+    }
+
+    outFile.close();
+    cout << "Файл \"" << filename << "\" успішно створено." << endl;
+}
+
+// Функція для перевірки, чи може число бути аргументом функції lg(x)
+bool isValidForLog(double number) {
+    return number > 0; // Аргумент логарифма повинен бути більшим за 0
+}
+
+// Функція для переписування чисел, які можуть бути аргументами lg(x), в інший файл
+void processFile(const string& inputFile, const string& outputFile) {
+    ifstream inFile(inputFile);
+    if (!inFile) {
+        cerr << "Не вдалося відкрити файл: " << inputFile << endl;
+        return;
+    }
+
+    ofstream outFile(outputFile);
+    if (!outFile) {
+        cerr << "Не вдалося створити файл: " << outputFile << endl;
+        return;
+    }
+
+    double number;
+    while (inFile >> number) {
+        if (isValidForLog(number)) { // Перевірка, чи число може бути аргументом lg(x)
+            outFile << number << " ";
+        }
+    }
+
+    inFile.close();
+    outFile.close();
+    cout << "Дані переписано у файл \"" << outputFile << "\"." << endl;
+}
+
+// Функція для виведення вмісту файлу на екран
+void printFile(const string& filename) {
+    ifstream inFile(filename);
+    if (!inFile) {
+        cerr << "Не вдалося відкрити файл: " << filename << endl;
+        return;
+    }
+
+    double number;
+    cout << "Вміст файлу \"" << filename << "\": ";
+    while (inFile >> number) {
+        cout << number << " ";
+    }
+    cout << endl;
+
+    inFile.close();
+}
+
+int main() {
+    // Встановлення локалі для підтримки кирилиці
+    setlocale(LC_ALL, "ukr");
+
+    string inputFile, outputFile;
+
+    // Введення імен файлів
+    cout << "Введіть ім'я файлу для запису початкових даних: ";
+    cin >> inputFile;
+    createFile(inputFile);
+
+    cout << "Введіть ім'я файлу для збереження результатів: ";
+    cin >> outputFile;
+    processFile(inputFile, outputFile);
+
+    // Вивід результату на екран
+    printFile(outputFile);
+
+    return 0;
+}
