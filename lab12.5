@@ -1,0 +1,278 @@
+#include <iostream>
+#include <fstream>
+#include <vector>
+#include <string>
+#include <algorithm>
+
+using namespace std;
+
+struct Product {
+    string name;
+    double price;
+    int deliveryTime; // Термін поставки (у днях)
+};
+
+struct Company {
+    string name;
+    int productCount;
+    vector<Product> products;
+};
+
+// Функція для введення даних компанії
+Company inputCompany() {
+    Company company;
+    cout << "Введiть назву фiрми: ";
+    cin.ignore();
+    getline(cin, company.name);
+    cout << "Введiть кiлькiсть товарiв: ";
+    cin >> company.productCount;
+
+    for (int i = 0; i < company.productCount; i++) {
+        Product product;
+        cout << "Введiть назву товару #" << i + 1 << ": ";
+        cin.ignore();
+        getline(cin, product.name);
+        cout << "Введiть вартiсть товару: ";
+        cin >> product.price;
+        cout << "Введiть термiн поставки (днiв): ";
+        cin >> product.deliveryTime;
+        company.products.push_back(product);
+    }
+    return company;
+}
+
+// Функція для запису компанії у файл
+void writeCompanyToFile(const string& filename, const Company& company) {
+    ofstream file(filename, ios::binary | ios::app);
+    if (!file) {
+        cerr << "Помилка вiдкриття файлу для запису." << endl;
+        return;
+    }
+    size_t nameSize = company.name.size();
+    file.write(reinterpret_cast<const char*>(&nameSize), sizeof(nameSize));
+    file.write(company.name.c_str(), nameSize);
+
+    file.write(reinterpret_cast<const char*>(&company.productCount), sizeof(company.productCount));
+    for (const auto& product : company.products) {
+        size_t productNameSize = product.name.size();
+        file.write(reinterpret_cast<const char*>(&productNameSize), sizeof(productNameSize));
+        file.write(product.name.c_str(), productNameSize);
+        file.write(reinterpret_cast<const char*>(&product.price), sizeof(product.price));
+        file.write(reinterpret_cast<const char*>(&product.deliveryTime), sizeof(product.deliveryTime));
+    }
+    file.close();
+}
+
+// Функція для читання всіх компаній із файлу
+vector<Company> readCompaniesFromFile(const string& filename) {
+    ifstream file(filename, ios::binary);
+    if (!file) {
+        cerr << "Помилка вiдкриття файлу для читання." << endl;
+        return {};
+    }
+    vector<Company> companies;
+    while (file.peek() != EOF) {
+        Company company;
+        size_t nameSize;
+        file.read(reinterpret_cast<char*>(&nameSize), sizeof(nameSize));
+        company.name.resize(nameSize);
+        file.read(&company.name[0], nameSize);
+
+        file.read(reinterpret_cast<char*>(&company.productCount), sizeof(company.productCount));
+        for (int i = 0; i < company.productCount; i++) {
+            Product product;
+            size_t productNameSize;
+            file.read(reinterpret_cast<char*>(&productNameSize), sizeof(productNameSize));
+            product.name.resize(productNameSize);
+            file.read(&product.name[0], productNameSize);
+            file.read(reinterpret_cast<char*>(&product.price), sizeof(product.price));
+            file.read(reinterpret_cast<char*>(&product.deliveryTime), sizeof(product.deliveryTime));
+            company.products.push_back(product);
+        }
+        companies.push_back(company);
+    }
+    file.close();
+    return companies;
+}
+
+// Функція для доповнення файлу
+void appendToFile(const string& filename) {
+    cout << "Додавання нової фiрми до файлу..." << endl;
+    Company company = inputCompany();
+    writeCompanyToFile(filename, company);
+}
+
+// Функція для заміни даних у файлі
+void replaceDataInFile(const string& filename) {
+    vector<Company> companies = readCompaniesFromFile(filename);
+    if (companies.empty()) return;
+
+    cout << "Оберiть номер фiрми для замiни (1-" << companies.size() << "): ";
+    size_t index;
+    cin >> index;
+    if (index < 1 || index > companies.size()) {
+        cerr << "Неправильний номер фiрми." << endl;
+        return;
+    }
+
+    cout << "Введiть новi данi для фiрми..." << endl;
+    companies[index - 1] = inputCompany();
+
+    ofstream file(filename, ios::binary | ios::trunc);
+    for (const auto& company : companies) {
+        writeCompanyToFile(filename, company);
+    }
+}
+
+// Функція для видалення даних із файлу
+void deleteDataFromFile(const string& filename) {
+    vector<Company> companies = readCompaniesFromFile(filename);
+    if (companies.empty()) return;
+
+    cout << "Оберiть номер фiрми для видалення (1-" << companies.size() << "): ";
+    size_t index;
+    cin >> index;
+    if (index < 1 || index > companies.size()) {
+        cerr << "Неправильний номер фiрми." << endl;
+        return;
+    }
+
+    companies.erase(companies.begin() + index - 1);
+
+    ofstream file(filename, ios::binary | ios::trunc);
+    for (const auto& company : companies) {
+        writeCompanyToFile(filename, company);
+    }
+}
+
+// Функція для запиту 1
+void findCompaniesByProductAndTime(const string& filename, const string& productName, int maxTime) {
+    vector<Company> companies = readCompaniesFromFile(filename);
+    cout << "Фiрми, що постачають \"" << productName << "\" у строк до " << maxTime << " днiв:" << endl;
+    for (const auto& company : companies) {
+        for (const auto& product : company.products) {
+            if (product.name == productName && product.deliveryTime <= maxTime) {
+                cout << company.name << endl;
+                break;
+            }
+        }
+    }
+}
+
+// Функція для запиту 2
+void findProductsInCompanyByPrice(const string& filename, const string& companyName, double maxPrice) {
+    vector<Company> companies = readCompaniesFromFile(filename);
+    cout << "Товари у фiрмi \"" << companyName << "\", вартiсть яких не перевищує " << maxPrice << ":" << endl;
+    for (const auto& company : companies) {
+        if (company.name == companyName) {
+            for (const auto& product : company.products) {
+                if (product.price <= maxPrice) {
+                    cout << product.name << endl;
+                }
+            }
+            return;
+        }
+    }
+    cout << "Фiрму \"" << companyName << "\" не знайдено." << endl;
+}
+
+// Функція для запиту 3
+void sortByDeliveryTime(const string& filename) {
+    vector<Company> companies = readCompaniesFromFile(filename);
+    for (auto& company : companies) {
+        sort(company.products.begin(), company.products.end(), [](const Product& a, const Product& b) {
+            return a.deliveryTime < b.deliveryTime;
+            });
+    }
+
+    ofstream file(filename, ios::binary | ios::trunc);
+    for (const auto& company : companies) {
+        writeCompanyToFile(filename, company);
+    }
+    cout << "Файл упорядковано за термiнами поставки." << endl;
+}
+
+// Меню програми
+void menu(const string& filename) {
+    int choice;
+    do {
+        cout << "\nМеню:\n"
+            << "1. Записати данi у файл\n"
+            << "2. Зчитати данi з файлу\n"
+            << "3. Доповнити файл\n"
+            << "4. Замiнити данi в файлi\n"
+            << "5. Видалити данi з файлу\n"
+            << "6. Пошук фiрм за товаром i термiном поставки\n"
+            << "7. Пошук товарiв у фiрмi за цiною\n"
+            << "8. Упорядкувати данi за термiном поставки\n"
+            << "0. Вийти\n"
+            << "Виберiть дiю: ";
+        cin >> choice;
+
+        switch (choice) {
+        case 1:
+            writeCompanyToFile(filename, inputCompany());
+            break;
+        case 2: {
+            vector<Company> companies = readCompaniesFromFile(filename);
+            for (const auto& company : companies) {
+                cout << "Фiрма: " << company.name << "\nТовари:\n";
+                for (const auto& product : company.products) {
+                    cout << "  Назва: " << product.name << ", Вартiсть: " << product.price
+                        << ", Термiн поставки: " << product.deliveryTime << " днiв\n";
+                }
+            }
+            break;
+        }
+        case 3:
+            appendToFile(filename);
+            break;
+        case 4:
+            replaceDataInFile(filename);
+            break;
+        case 5:
+            deleteDataFromFile(filename);
+            break;
+        case 6: {
+            string productName;
+            int maxTime;
+            cout << "Введiть назву товару: ";
+            cin.ignore();
+            getline(cin, productName);
+            cout << "Введiть максимальний термiн поставки (днів): ";
+            cin >> maxTime;
+            findCompaniesByProductAndTime(filename, productName, maxTime);
+            break;
+        }
+        case 7: {
+            string companyName;
+            double maxPrice;
+            cout << "Введiть назву фiрми: ";
+            cin.ignore();
+            getline(cin, companyName);
+            cout << "Введiть максимальну вартiсть: ";
+            cin >> maxPrice;
+            findProductsInCompanyByPrice(filename, companyName, maxPrice);
+            break;
+        }
+        case 8:
+            sortByDeliveryTime(filename);
+            break;
+        case 0:
+            cout << "Вихiд iз програми." << endl;
+            break;
+        default:
+            cerr << "Неправильний вибiр. Спробуйте ще раз." << endl;
+        }
+    } while (choice != 0);
+}
+
+// Головна функція
+int main() {
+    setlocale(LC_ALL, "ukr");
+    string filename;
+    cout << "Введiть iм'я файлу: ";
+    cin >> filename;
+    menu(filename);
+    return 0;
+}
